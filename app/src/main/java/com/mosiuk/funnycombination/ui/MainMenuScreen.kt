@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.mosiuk.funnycombination.Screen
+import com.mosiuk.funnycombination.navigation.Screen
 import com.mosiuk.funnycombination.ui.theme.FunnyCombinationTheme
 
 @Composable

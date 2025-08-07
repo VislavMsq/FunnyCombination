@@ -14,6 +14,7 @@ import androidx.navigation.navArgument
 import androidx.room.Room
 import com.mosiuk.funnycombination.data.AppDatabase
 import com.mosiuk.funnycombination.data.HighScoreRepository
+import com.mosiuk.funnycombination.navigation.Screen
 // Импорты UI-компонентов. Предполагаем, что все они находятся в пакете 'ui'.
 import com.mosiuk.funnycombination.ui.HighScoresScreen
 import com.mosiuk.funnycombination.ui.GameOverScreen
@@ -91,7 +92,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.PrivacyPolicy.route) {
-                        PrivacyPolicyScreen()
+                        PrivacyPolicyScreen(navController)
                     }
                 }
             }

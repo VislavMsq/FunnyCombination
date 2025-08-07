@@ -1,4 +1,4 @@
-package com.mosiuk.funnycombination
+package com.mosiuk.funnycombination.navigation
 
 sealed class Screen(val route: String) {
     object Splash : Screen("splash")

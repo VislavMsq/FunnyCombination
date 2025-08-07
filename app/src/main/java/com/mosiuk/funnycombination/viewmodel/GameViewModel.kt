@@ -31,9 +31,8 @@ class GameViewModel(
 
     val level: Int get() = sequence.size
 
-    /**
-     * Сбросить состояние до начала игры.
-     */
+
+    //Сбросить состояние до начала игры.
     fun startGame() {
         sequence = listOf(emojiPool.random())
         playerInput = listOf()
@@ -51,9 +50,9 @@ class GameViewModel(
         }
     }
 
-    /**
-     * Запускается после показа последовательности
-     */
+
+    // Запускается после показа последовательности
+
     fun onSequenceShown() {
         isShowingSequence = false
         playerInput = listOf()
@@ -63,9 +62,7 @@ class GameViewModel(
         mistakeInput = emptyList()
     }
 
-    /**
-     * Нажатие на эмодзи.
-     */
+    // Нажатие на эмодзи.
     fun onEmojiClick(emoji: String, onGameOver: (score: Int) -> Unit) {
         // Если сейчас показывается последовательность, или раунд ещё не начат, не реагируем
         if (isShowingSequence || readyForNextRound || currentMessage != null || showCorrectRow || showMistake) return
@@ -96,9 +93,7 @@ class GameViewModel(
         }
     }
 
-    /**
-     * Переход на следующий уровень.
-     */
+    // Переход на следующий уровень.
     fun nextLevel() {
         sequence = sequence + emojiPool.random()
         playerInput = listOf()
