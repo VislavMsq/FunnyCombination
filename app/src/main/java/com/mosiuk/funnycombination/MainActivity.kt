@@ -27,14 +27,13 @@ import com.mosiuk.funnycombination.viewmodel.HighScoreViewModel
 
 class MainActivity : ComponentActivity() {
 
-    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        // --- 1. Слой данных (база, dao, репозиторий, ViewModel) ---
-        // Создание ViewModel вне Composable-функций
-        // Этот ViewModel будет доступен для захвата в лямбдах setContent
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+        enableEdgeToEdge()
+    }
+
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
@@ -44,7 +43,6 @@ class MainActivity : ComponentActivity() {
         val highScoreRepository = HighScoreRepository(highScoreDao)
         val highScoreViewModel = HighScoreViewModel(highScoreRepository)
 
-        // --- 2. setContent: только ViewModel и навигация ---
         setContent {
             FunnyCombinationTheme {
                 val navController = rememberNavController() // NavController создается внутри Composable-скоупа
