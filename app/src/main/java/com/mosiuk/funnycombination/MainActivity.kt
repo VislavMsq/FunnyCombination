@@ -15,14 +15,13 @@ import androidx.room.Room
 import com.mosiuk.funnycombination.data.AppDatabase
 import com.mosiuk.funnycombination.data.HighScoreRepository
 import com.mosiuk.funnycombination.navigation.Screen
-// Импорты UI-компонентов. Предполагаем, что все они находятся в пакете 'ui'.
 import com.mosiuk.funnycombination.ui.HighScoresScreen
 import com.mosiuk.funnycombination.ui.GameOverScreen
 import com.mosiuk.funnycombination.ui.GameScreen
 import com.mosiuk.funnycombination.ui.MainMenuScreen
 import com.mosiuk.funnycombination.ui.PrivacyPolicyScreen
 import com.mosiuk.funnycombination.ui.SplashScreen
-import com.mosiuk.funnycombination.ui.theme.FunnyCombinationTheme // Убедитесь, что FunnyCombinationTheme находится здесь
+import com.mosiuk.funnycombination.ui.theme.FunnyCombinationTheme
 import com.mosiuk.funnycombination.viewmodel.HighScoreViewModel
 
 class MainActivity : ComponentActivity() {
@@ -45,7 +44,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FunnyCombinationTheme {
-                val navController = rememberNavController() // NavController создается внутри Composable-скоупа
+                val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Screen.Splash.route) {
 
                     composable(Screen.Splash.route) {
@@ -63,7 +62,6 @@ class MainActivity : ComponentActivity() {
                     composable(Screen.Game.route) {
                         GameScreen(
                             onGameOver = { score ->
-                                // highScoreViewModel доступен здесь, так как он захватывается из внешнего onCreate скоупа
                                 highScoreViewModel.saveHighScore(score)
                                 navController.navigate(Screen.GameOver.createRoute(score))
                             }
@@ -78,14 +76,14 @@ class MainActivity : ComponentActivity() {
                         GameOverScreen(
                             score = score,
                             navController = navController,
-                            highScoreViewModel = highScoreViewModel // ViewModel передается
+                            highScoreViewModel = highScoreViewModel
                         )
                     }
 
                     composable(Screen.HighScores.route) {
                         HighScoresScreen(
                             navController = navController,
-                            highScoreViewModel = highScoreViewModel // ViewModel передается
+                            highScoreViewModel = highScoreViewModel
                         )
                     }
 

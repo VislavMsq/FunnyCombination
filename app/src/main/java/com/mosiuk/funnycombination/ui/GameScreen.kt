@@ -45,7 +45,6 @@ fun GameScreen(
     val emojisPerLineForSmallFont = 6
     val emojisPerLineForLargeFont = 5
 
-    // Запускаем startGame при первом показе экрана
     LaunchedEffect(Unit) {
         viewModel.startGame()
     }
