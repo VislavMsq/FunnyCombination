@@ -1,5 +1,6 @@
 package com.mosiuk.funnycombination.ui
 
+import HighScoreViewModel
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mosiuk.funnycombination.navigation.Screen
 import com.mosiuk.funnycombination.data.HighScoreDao
-import com.mosiuk.funnycombination.viewmodel.HighScoreViewModel
 import kotlinx.coroutines.launch
 
 @Composable
