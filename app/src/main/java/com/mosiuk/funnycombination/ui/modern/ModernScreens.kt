@@ -9,13 +9,21 @@ package com.mosiuk.funnycombination.ui.modern
 import HighScoreViewModel
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.R
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +37,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -59,8 +68,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -140,39 +154,52 @@ fun GlowingEmojiButton(emoji: String, onClick: () -> Unit, modifier: Modifier = 
 
 @Composable
 fun ModernSplashScreen(onTimeout: () -> Unit) {
-    var visible by remember { mutableStateOf(false) }
+    // тайминг
     LaunchedEffect(Unit) {
-        visible = true
         kotlinx.coroutines.delay(1200)
-        visible = false
-        kotlinx.coroutines.delay(500)
         onTimeout()
     }
-    GradientBackground {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn(tween(600, easing = FastOutSlowInEasing)),
-                exit = fadeOut(tween(600))
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        "Funny Combination",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Black,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        "Проверь свою память",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.alpha(0.8f)
-                    )
-                }
+
+    // фон: мягкий радиальный градиент
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f),
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.secondary.copy(alpha = 0.20f)
+                    ),
+                    center = Offset.Infinite,  // центр станет по середине бокса
+                    radius = 1400f
+                )
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        // лёгкая анимация появления
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn() + slideInVertically(initialOffsetY = { it / 6 })
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    "Funny Combination",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Проверь свою память",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.alpha(0.9f)
+                )
             }
         }
     }
 }
+
 
 // -----------------------------
 // Modern Main Menu
@@ -180,7 +207,56 @@ fun ModernSplashScreen(onTimeout: () -> Unit) {
 
 @Composable
 fun ModernMainMenuScreen(navController: NavController) {
-    GradientBackground {
+    // фон: комбинируем вертикальный + радиальный градиенты
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.30f),
+                    )
+                )
+            )
+    ) {
+        val fruits = listOf("🍎", "🍌", "🍒", "🍇", "🍊")
+        val infinite = rememberInfiniteTransition(label = "float")
+        val cfg = LocalConfiguration.current
+        val screenH = cfg.screenHeightDp.dp.value
+
+        fruits.forEachIndexed { i, emoji ->
+            val bounceY by infinite.animateFloat(
+                initialValue = 0f,
+                targetValue = screenH,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(4000 + i * 300, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "y$i"
+            )
+            val alpha by infinite.animateFloat(
+                initialValue = 0.12f, targetValue = 0.28f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(2400 + i * 180, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "a$i"
+            )
+            val baseX = when (i) { 0 -> -120.dp; 1 -> -40.dp; 2 -> 0.dp; 3 -> 60.dp; else -> 130.dp }
+            Text(
+                text = emoji,
+                fontSize = 48.sp,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(x = baseX, y = bounceY.dp)
+                    .alpha(alpha)
+            )
+        }
+
+
+        // Контент
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -188,23 +264,35 @@ fun ModernMainMenuScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Заголовок по центру с анимацией
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { -50 })
+            ) {
+                Text(
+                    text = "Funny Combination",
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
             Text(
-                "Funny Combination",
-                style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center
+                text = "Аркада на внимательность",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.alpha(0.85f)
             )
-            Spacer(Modifier.height(24.dp))
-            Text("Аркада на внимательность", modifier = Modifier.alpha(0.8f))
+
             Spacer(Modifier.height(40.dp))
             Button(
                 onClick = { navController.navigate(Screen.Game.route) },
-                modifier = Modifier.fillMaxWidth(),
-                content = {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Играть")
-                }
-            )
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("Играть")
+            }
             Spacer(Modifier.height(12.dp))
             FilledTonalButton(
                 onClick = { navController.navigate(Screen.HighScores.route) },
@@ -226,6 +314,7 @@ fun ModernMainMenuScreen(navController: NavController) {
         }
     }
 }
+
 
 // -----------------------------
 // Modern Game

@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                     }
 
                     composable(Screen.MainMenu.route) {
-                        ModernMainMenuScreen(navController)
+                        ModernMainMenuScreen(navController = navController)
                     }
 
                     composable(Screen.Game.route) {
