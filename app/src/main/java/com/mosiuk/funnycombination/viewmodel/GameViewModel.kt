@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 class GameViewModel(
     private val emojiPool: List<String> = listOf("🍎", "🍌", "🍇", "🍒", "🍊")
 ) : ViewModel() {
-    // --- Состояния ---
     var sequence by mutableStateOf(listOf(emojiPool.random()))
         private set
     var playerInput by mutableStateOf(listOf<String>())
@@ -32,7 +31,6 @@ class GameViewModel(
     val level: Int get() = sequence.size
 
 
-    //Сбросить состояние до начала игры.
     fun startGame() {
         sequence = listOf(emojiPool.random())
         playerInput = listOf()
@@ -42,7 +40,6 @@ class GameViewModel(
         showCorrectRow = false
         showMistake = false
         mistakeInput = emptyList()
-        // Запускаем показ последовательности после короткой паузы, как раньше
         viewModelScope.launch {
             delay(1200)
             isShowingSequence = true
@@ -50,8 +47,6 @@ class GameViewModel(
         }
     }
 
-
-    // Запускается после показа последовательности
 
     fun onSequenceShown() {
         isShowingSequence = false
@@ -62,15 +57,12 @@ class GameViewModel(
         mistakeInput = emptyList()
     }
 
-    // Нажатие на эмодзи.
     fun onEmojiClick(emoji: String, onGameOver: (score: Int) -> Unit) {
-        // Если сейчас показывается последовательность, или раунд ещё не начат, не реагируем
         if (isShowingSequence || readyForNextRound || currentMessage != null || showCorrectRow || showMistake) return
 
         val newPlayerInput = playerInput + emoji
         playerInput = newPlayerInput
 
-        // Проверка на ошибку
         val mistake =
             newPlayerInput.zip(sequence.take(newPlayerInput.size)).any { (a, b) -> a != b }
         if (mistake) {
@@ -93,7 +85,6 @@ class GameViewModel(
         }
     }
 
-    // Переход на следующий уровень.
     fun nextLevel() {
         sequence = sequence + emojiPool.random()
         playerInput = listOf()
