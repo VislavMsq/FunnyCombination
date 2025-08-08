@@ -21,6 +21,8 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
@@ -83,6 +85,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.mosiuk.funnycombination.navigation.Screen
 import com.mosiuk.funnycombination.viewmodel.GameViewModel
+import kotlinx.coroutines.delay
 
 // -----------------------------
 // Shared UI kit
@@ -475,28 +478,46 @@ fun EmojiBlock(list: List<String>, large: Boolean = false, tintedError: Boolean 
 
 
 @Composable
-fun SequenceTicker(sequence: List<String>, onEnd: () -> Unit) {
-    var index by remember { mutableStateOf(-1) }
-    var show by remember { mutableStateOf(true) }
+fun SequenceTicker(
+    sequence: List<String>,
+    onEnd: () -> Unit
+) {
+    // если показывать нечего — сразу завершить
+    if (sequence.isEmpty()) {
+        LaunchedEffect(Unit) { onEnd() }
+        return
+    }
+
+    val showMs = 800
+    val animMs = 300 // должен совпадать с exit
+    var visible by remember { mutableStateOf(false) }
+    var lastEmoji by remember { mutableStateOf<String?>(null) } // то, что рисуем в контенте
 
     LaunchedEffect(sequence) {
-        for (i in sequence.indices) {
-            show = true
-            index = i
-            kotlinx.coroutines.delay(700)
-            show = false
-            kotlinx.coroutines.delay(250)
+        for (e in sequence) {
+            lastEmoji = e            // фиксируем кадр
+            visible = true
+            delay(showMs.toLong())   // время показа
+            visible = false
+            delay(animMs.toLong())   // даём exit доиграть (равно длительности exit)
         }
-        index = -1
+        // НИЧЕГО не обнуляем — родитель сам переключит экран
         onEnd()
     }
 
-    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        if (index != -1 && show) {
-            val alpha by animateFloatAsState(
-                targetValue = if (show) 1f else 0f, label = "alpha"
-            )
-            Text(sequence[index], fontSize = 54.sp, modifier = Modifier.alpha(alpha))
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(tween(animMs)) + scaleIn(tween(animMs)),
+            exit  = fadeOut(tween(animMs)) + scaleOut(tween(animMs))
+        ) {
+            // Без "!!" — никакого NPE даже при гонках
+            lastEmoji?.let { Text(it, fontSize = 56.sp) }
         }
     }
 }

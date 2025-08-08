@@ -1,5 +1,11 @@
 package com.mosiuk.funnycombination.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -39,7 +45,11 @@ fun EmojiSequenceDemo(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        if (currentIndex != -1 && showEmoji) {
+        AnimatedVisibility(
+            visible = currentIndex != -1 && showEmoji,
+            enter = fadeIn(animationSpec = tween(300)) + scaleIn(animationSpec = tween(300)),
+            exit  = fadeOut(animationSpec = tween(300)) + scaleOut(animationSpec = tween(300))
+        ) {
             Text(sequence[currentIndex], fontSize = 50.sp)
         }
     }

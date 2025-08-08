@@ -50,7 +50,7 @@ fun GameOverScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Игра окончена!",
+                text = "Игра окончена! 😭",
                 style = MaterialTheme.typography.headlineMedium
             )
             Spacer(modifier = Modifier.height(16.dp))
@@ -63,7 +63,7 @@ fun GameOverScreen(
             if (isNewRecord) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Новый рекорд!",
+                    text = "Новый рекорд! 😎",
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 22.sp
                 )
