@@ -1,95 +1,34 @@
 package com.mosiuk.funnycombination
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresApi
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import androidx.room.Room
-import com.mosiuk.funnycombination.data.AppDatabase
-import com.mosiuk.funnycombination.data.HighScoreRepository
-import com.mosiuk.funnycombination.navigation.Screen
-import com.mosiuk.funnycombination.ui.HighScoresScreen
-import com.mosiuk.funnycombination.ui.GameOverScreen
-import com.mosiuk.funnycombination.ui.GameScreen
-import com.mosiuk.funnycombination.ui.MainMenuScreen
-import com.mosiuk.funnycombination.ui.PrivacyPolicyScreen
-import com.mosiuk.funnycombination.ui.SplashScreen
+import com.mosiuk.funnycombination.ui.navigation.AppNavGraph
 import com.mosiuk.funnycombination.ui.theme.FunnyCombinationTheme
-import com.mosiuk.funnycombination.viewmodel.HighScoreViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Главная и единственная Activity в приложении.
+ * Аннотация @AndroidEntryPoint позволяет внедрять зависимости в Activity.
+ * Является хостом для NavHost, который управляет навигацией между экранами.
+ */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-        enableEdgeToEdge()
-    }
-
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java,
-            "high_scores_db"
-        ).build()
-        val highScoreDao = db.highScoreDao()
-        val highScoreRepository = HighScoreRepository(highScoreDao)
-        val highScoreViewModel = HighScoreViewModel(highScoreRepository)
-
         setContent {
             FunnyCombinationTheme {
-                val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = Screen.Splash.route) {
-
-                    composable(Screen.Splash.route) {
-                        SplashScreen(onTimeout = {
-                            navController.navigate(Screen.MainMenu.route) {
-                                popUpTo(Screen.Splash.route) { inclusive = true }
-                            }
-                        })
-                    }
-
-                    composable(Screen.MainMenu.route) {
-                        MainMenuScreen(navController = navController)
-                    }
-
-                    composable(Screen.Game.route) {
-                        GameScreen(
-                            onGameOver = { score ->
-                                highScoreViewModel.saveHighScore(score)
-                                navController.navigate(Screen.GameOver.createRoute(score))
-                            }
-                        )
-                    }
-
-                    composable(
-                        route = Screen.GameOver.route,
-                        arguments = listOf(navArgument("score") { type = NavType.IntType })
-                    ) { backStackEntry ->
-                        val score = backStackEntry.arguments?.getInt("score") ?: 0
-                        GameOverScreen(
-                            score = score,
-                            navController = navController,
-                            highScoreViewModel = highScoreViewModel
-                        )
-                    }
-
-                    composable(Screen.HighScores.route) {
-                        HighScoresScreen(
-                            navController = navController,
-                            highScoreViewModel = highScoreViewModel
-                        )
-                    }
-
-                    composable(Screen.PrivacyPolicy.route) {
-                        PrivacyPolicyScreen(navController)
-                    }
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    AppNavGraph(navController = navController)
                 }
             }
         }
